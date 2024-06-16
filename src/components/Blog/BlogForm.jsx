@@ -208,29 +208,31 @@
 
 // export default BlogForm;
 
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Modal from './modal';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Modal from "./modal";
 
 const BlogForm = () => {
   const [formData, setFormData] = useState({
-    blogPicture: '',
-    blogTitle: '',
-    summary: '',
-    description: '',
-    authorName: '',
-    authorPicture: '',
-    datePublished: '',
+    blogPicture: "",
+    blogTitle: "",
+    summary: "",
+    description: "",
+    authorName: "",
+    authorPicture: "",
+    datePublished: "",
   });
 
-  const [posts, setPosts] = useState([]);
+  const [posts, setPosts] = useState(
+    /* The reason why the storage is always 
+    empty is because the initial state is always an empty array.
+    So, the initial state should be the value of the local storage
+    */
+    JSON.parse(localStorage.getItem("blogPost")) || [],
+  );
   const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    localStorage.setItem('blogPost', JSON.stringify(posts));
-    console.log(posts); // Log the updated posts array
-  }, [posts]);
+  localStorage.setItem("blogPost", JSON.stringify(posts));
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -242,7 +244,10 @@ const BlogForm = () => {
 
   const handleFileChange = (e) => {
     const { name, files } = e.target;
-    const file = files[0];
+    /* The size of this file is too large.
+     * This is why the error of SetItem is thrown because it is exceeding the local storage limit.
+     */
+
     const reader = new FileReader();
     reader.onloadend = () => {
       setFormData((prevFormData) => ({
@@ -250,7 +255,7 @@ const BlogForm = () => {
         [name]: reader.result,
       }));
     };
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(files[0]);
   };
 
   const handleSubmit = (e) => {
@@ -261,22 +266,21 @@ const BlogForm = () => {
     setTimeout(() => {
       setShowModal(false);
       resetForm();
-      navigate('/blogs');
+      navigate("/blogs");
     }, 5000);
   };
 
   const resetForm = () => {
     setFormData({
-      blogPicture: '',
-      blogTitle: '',
-      summary: '',
-      description: '',
-      authorName: '',
-      authorPicture: '',
-      datePublished: '',
+      blogPicture: "",
+      blogTitle: "",
+      summary: "",
+      description: "",
+      authorName: "",
+      authorPicture: "",
+      datePublished: "",
     });
   };
-
   return (
     <div className="max-w-2xl mx-auto p-6 bg-white shadow-md rounded-md my-20">
       <h2 className="text-2xl font-bold mb-6">Create Blog Post</h2>
